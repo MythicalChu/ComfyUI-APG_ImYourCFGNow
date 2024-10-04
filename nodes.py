@@ -25,20 +25,9 @@ class MomentumBuffer:
         
 def project( v0: torch.Tensor, v1: torch.Tensor,):
     dtype = v0.dtype
-    castToCpu=["privateuseone:0"]
-    device = v0.device # .double() causes problems on DML, on the line v1 = torch.nn.functional.normalize(v1, dim=[-1, -2, -3]) with "parameter error" probably because v1 gets corruped on the .double() attempt
-    if device in castToCpu:
-        v0 = v0.to("cpu")
-        v1 = v1.to("cpu")
-    v0, v1 = v0.double(), v1.double()
     v1 = torch.nn.functional.normalize(v1, dim=[-1, -2, -3])
     v0_parallel = (v0 * v1).sum(dim=[-1, -2, -3], keepdim=True) * v1
     v0_orthogonal = v0 - v0_parallel
-    
-    #return v0_parallel.to(dtype), v0_orthogonal.to(dtype)
-    if device in castToCpu:
-        v0_parallel = v0_parallel.to(device)
-        v0_orthogonal = v0_orthogonal.to(device)
     return v0_parallel.to(dtype), v0_orthogonal.to(dtype)
     
 def normalized_guidance( pred_cond: torch.Tensor, pred_uncond: torch.Tensor, guidance_scale: float, momentum_buffer: MomentumBuffer = None, eta: float = 1.0, norm_threshold: float = 0.0,):
