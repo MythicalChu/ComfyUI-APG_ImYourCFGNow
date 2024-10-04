@@ -25,6 +25,7 @@ class MomentumBuffer:
         
 def project( v0: torch.Tensor, v1: torch.Tensor,):
     dtype = v0.dtype
+    #v0, v1 = v0.double(), v1.double()
     v1 = torch.nn.functional.normalize(v1, dim=[-1, -2, -3])
     v0_parallel = (v0 * v1).sum(dim=[-1, -2, -3], keepdim=True) * v1
     v0_orthogonal = v0 - v0_parallel
@@ -33,9 +34,7 @@ def project( v0: torch.Tensor, v1: torch.Tensor,):
 def normalized_guidance( pred_cond: torch.Tensor, pred_uncond: torch.Tensor, guidance_scale: float, momentum_buffer: MomentumBuffer = None, eta: float = 1.0, norm_threshold: float = 0.0,):
     diff = pred_cond - pred_uncond
     if momentum_buffer is not None:
-        #print(" momentum: ", momentum_buffer.momentum, " running_average: ", momentum_buffer.running_average)
         momentum_buffer.update(diff)
-        #print(" new running_average: ", momentum_buffer.running_average)
         diff = momentum_buffer.running_average
     if norm_threshold > 0:
         ones = torch.ones_like(diff)
