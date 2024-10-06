@@ -55,7 +55,7 @@ class APG_ImYourCFGNow:
                 "model": ("MODEL",),
                 "scale": ("FLOAT", {"default": 5.0, "min": 0.0, "max": 100.0, "step": 0.1, "round": 0.01}),
                 "momentum": ("FLOAT", {"default": -0.5, "min": -1.5, "max": 0.5, "step": 0.1, "round": 0.01}),
-                "norm_threshold": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.1, "round": 0.01}),
+                "norm_threshold": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 50.0, "step": 0.5, "round": 0.01}),
                 "eta": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.1, "round": 0.01}),
             },
         }
