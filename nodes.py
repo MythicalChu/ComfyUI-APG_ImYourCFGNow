@@ -53,9 +53,9 @@ class APG_ImYourCFGNow:
         return {
             "required": {
                 "model": ("MODEL",),
-                "scale": ("FLOAT", {"default": 5.0, "min": 0.0, "max": 100.0, "step": 0.1, "round": 0.01}),
+                "scale": ("FLOAT", {"default": 12.0, "min": 0.0, "max": 100.0, "step": 0.1, "round": 0.01}),
                 "momentum": ("FLOAT", {"default": -0.5, "min": -1.5, "max": 0.5, "step": 0.1, "round": 0.01}),
-                "norm_threshold": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 50.0, "step": 0.5, "round": 0.01}),
+                "norm_threshold": ("FLOAT", {"default": 15.0, "min": 0.0, "max": 50.0, "step": 0.5, "round": 0.01}),
                 "eta": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.1, "round": 0.01}),
             },
         }
@@ -68,9 +68,9 @@ class APG_ImYourCFGNow:
     def patch(
         self,
         model: ModelPatcher,
-        scale: float = 5.0,
+        scale: float = 12.0,
         momentum: float = -0.5,
-        norm_threshold: float = 0.0,
+        norm_threshold: float = 15.0,
         eta: float = 1.0,
     ):
         
