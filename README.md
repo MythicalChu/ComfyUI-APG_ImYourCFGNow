@@ -8,3 +8,7 @@ on my machine (DirectML can't use 'double', I believe). Shouldn't cause any noti
 
 Edit:
 Updated defaults, works well with high Norm_Threshold and higher scales
+
+Edit2:
+Fixed a bug where momentum_buffer.running_average wouldn't reset between gens, changed defaults based on my tests again.
+If you tried changing resolution without triggering a re-patch, you'd see a nice error message...
