@@ -53,7 +53,6 @@ class APG_ImYourCFGNow:
         return {
             "required": {
                 "model": ("MODEL",),
-                "scale": ("FLOAT", {"default": 9.0, "min": 0.0, "max": 100.0, "step": 0.1, "round": 0.01}),
                 "momentum": ("FLOAT", {"default": -0.05, "min": -1.5, "max": 0.5, "step": 0.01, "round": 0.001}),
                 "norm_threshold": ("FLOAT", {"default": 15.0, "min": 0.0, "max": 50.0, "step": 0.5, "round": 0.01}),
                 "eta": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.1, "round": 0.01}),
@@ -68,7 +67,6 @@ class APG_ImYourCFGNow:
     def patch(
         self,
         model: ModelPatcher,
-        scale: float = 9.0,
         momentum: float = -0.05,
         norm_threshold: float = 15.0,
         eta: float = 1.0,
@@ -81,12 +79,13 @@ class APG_ImYourCFGNow:
             uncond = args["uncond"]
             sigma = args["sigma"]
             model = args["model"]
+            cond_scale = args["cond_scale"]
             
             
             if model.model_sampling.timestep(sigma)[0].item()==999:
                 momentum_buffer.running_average=0
 
-            return normalized_guidance(cond, uncond, scale, momentum_buffer, eta, norm_threshold)
+            return normalized_guidance(cond, uncond, cond_scale, momentum_buffer, eta, norm_threshold)
 
         m = model.clone()
         m.set_model_sampler_cfg_function(apg_function, momentum_buffer)
