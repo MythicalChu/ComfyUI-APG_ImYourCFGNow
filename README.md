@@ -7,6 +7,10 @@ on my machine (DirectML can't use 'double', I believe). Shouldn't cause any noti
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 
+Refresh your workflow and recreate the node if you're updating!
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
 Edit4 - 01/11/2024:
 Added an "adaptive_momentum". It gradually brings momentum towards 0 every step.
 
