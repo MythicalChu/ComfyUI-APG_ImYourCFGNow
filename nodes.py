@@ -53,9 +53,11 @@ class APG_ImYourCFGNow:
         return {
             "required": {
                 "model": ("MODEL",),
-                "momentum": ("FLOAT", {"default": -0.05, "min": -1.5, "max": 0.5, "step": 0.01, "round": 0.001}),
-                "norm_threshold": ("FLOAT", {"default": 15.0, "min": 0.0, "max": 50.0, "step": 0.5, "round": 0.01}),
+                "momentum": ("FLOAT", {"default": 0.5, "min": -1.5, "max": 1.0, "step": 0.01, "round": 0.001}),
+                "adaptive_momentum": ("FLOAT", {"default": 0.180, "min": 0.0, "max": 1.0, "step": 0.001, "round": 0.001}),
+                "norm_threshold": ("FLOAT", {"default": 15.0, "min": 0.0, "max": 50.0, "step": 0.05, "round": 0.01}),
                 "eta": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.1, "round": 0.01}),
+                "print_data": ("BOOLEAN", {"default": False,}),
             },
         }
 
@@ -67,12 +69,15 @@ class APG_ImYourCFGNow:
     def patch(
         self,
         model: ModelPatcher,
-        momentum: float = -0.05,
+        momentum: float = 0.5,
+        adaptive_momentum: float = 0.180,
         norm_threshold: float = 15.0,
         eta: float = 1.0,
+        print_data = False,
     ):
         
         momentum_buffer = MomentumBuffer(momentum)
+        extras = [momentum_buffer, momentum, adaptive_momentum]
 
         def apg_function(args):
             cond = args["cond"]
@@ -80,15 +85,38 @@ class APG_ImYourCFGNow:
             sigma = args["sigma"]
             model = args["model"]
             cond_scale = args["cond_scale"]
+
+            momentum_buffer=extras[0]
+            momentum=extras[1]
+            adaptive_momentum=extras[2]
+
+            t = model.model_sampling.timestep(sigma)[0].item()
             
+            if (torch.is_tensor(momentum_buffer.running_average) and (cond.shape[3]!=momentum_buffer.running_average.shape[3])) or t==999:
+                momentum_buffer = MomentumBuffer(momentum)
+                extras[0]=momentum_buffer
+            else:
+                signal_scale = momentum
+                if adaptive_momentum > 0:
+                    if momentum<0:
+                        signal_scale += -momentum * (adaptive_momentum**4) * (1000 - t)
+                        if signal_scale > 0:
+                            signal_scale = 0
+                    else:
+                        signal_scale -= momentum * (adaptive_momentum**4) * (1000 - t)
+                        if signal_scale < 0:
+                            signal_scale = 0
+                
+                momentum_buffer.momentum = signal_scale
+                
+            if print_data:
+                print(" momentum: ", momentum_buffer.momentum, " t: ", t)
             
-            if model.model_sampling.timestep(sigma)[0].item()==999:
-                momentum_buffer.running_average=0
 
             return normalized_guidance(cond, uncond, cond_scale, momentum_buffer, eta, norm_threshold)
 
         m = model.clone()
-        m.set_model_sampler_cfg_function(apg_function, momentum_buffer)
+        m.set_model_sampler_cfg_function(apg_function, extras)
 
         return (m,)
         
