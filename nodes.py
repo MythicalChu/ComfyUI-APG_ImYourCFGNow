@@ -57,13 +57,15 @@ class APG_ImYourCFGNow:
                 "adaptive_momentum": ("FLOAT", {"default": 0.180, "min": 0.0, "max": 1.0, "step": 0.001, "round": 0.001}),
                 "norm_threshold": ("FLOAT", {"default": 15.0, "min": 0.0, "max": 50.0, "step": 0.05, "round": 0.01}),
                 "eta": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.1, "round": 0.01}),
+                "guidance_limiter": ("BOOLEAN", {"default": False}),
+                "guidance_sigma_start": ("FLOAT", {"default": 5.42, "min": -1.0, "max": 10000.0, "step": 0.01, "round": False}),
+                "guidance_sigma_end": ("FLOAT", {"default": 0.28, "min": -1.0, "max": 10000.0, "step": 0.01, "round": False}),
                 "print_data": ("BOOLEAN", {"default": False,}),
             },
         }
 
     RETURN_TYPES = ("MODEL",)
     FUNCTION = "patch"
-
     CATEGORY = "model_patches/unet"
 
     def patch(
@@ -73,9 +75,11 @@ class APG_ImYourCFGNow:
         adaptive_momentum: float = 0.180,
         norm_threshold: float = 15.0,
         eta: float = 1.0,
+        guidance_limiter: bool = False,
+        guidance_sigma_start: float = 5.42,
+        guidance_sigma_end: float = 0.28,
         print_data = False,
     ):
-        
         momentum_buffer = MomentumBuffer(momentum)
         extras = [momentum_buffer, momentum, adaptive_momentum]
 
@@ -85,6 +89,13 @@ class APG_ImYourCFGNow:
             sigma = args["sigma"]
             model = args["model"]
             cond_scale = args["cond_scale"]
+
+            if guidance_limiter:
+                if (guidance_sigma_start >= 0 and sigma[0] >  guidance_sigma_start) or \
+                   (guidance_sigma_end   >= 0 and sigma[0] <= guidance_sigma_end):
+                    if print_data:
+                        print(f" guidance limiter active (sigma: {sigma[0]})")
+                    return uncond + (cond - uncond)
 
             momentum_buffer=extras[0]
             momentum=extras[1]
