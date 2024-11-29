@@ -79,6 +79,7 @@ class APG_ImYourCFGNow:
         guidance_sigma_start: float = 5.42,
         guidance_sigma_end: float = 0.28,
         print_data = False,
+        extras=[],
     ):
         momentum_buffer = MomentumBuffer(momentum)
         extras = [momentum_buffer, momentum, adaptive_momentum]
@@ -127,7 +128,8 @@ class APG_ImYourCFGNow:
             return normalized_guidance(cond, uncond, cond_scale, momentum_buffer, eta, norm_threshold)
 
         m = model.clone()
-        m.set_model_sampler_cfg_function(apg_function, extras)
+        m.set_model_sampler_cfg_function(apg_function, extras==extras)
+        m.model_options["disable_cfg1_optimization"] = False
 
         return (m,)
         
