@@ -11,6 +11,20 @@ Refresh your workflow and recreate the node if you're updating!
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Edit5 - 29/11/2024:
+
+Added "Guidance Limiter" : https://arxiv.org/abs/2404.07724
+It drops the cfg (also, APG's functions) outside the specified range (ideally at the early steps and the later ones) improving variability and
+combating oversaturation.
+Starting and ending parameters set as per the paper suggestion, but may need further tweaking depending on model and other conditions.
+
+If using CFGLimiterGuider from https://github.com/pamparamm/ComfyUI-ppm with same starting and ending parameters, there should be a speed boost,
+as the uncond is dropped. (It connects to SamplerCustomAdvanced)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
 Edit4 - 01/11/2024:
 Added an "adaptive_momentum". It gradually brings momentum towards 0 every step.
 
