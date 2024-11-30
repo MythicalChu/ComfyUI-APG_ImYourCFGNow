@@ -128,7 +128,7 @@ class APG_ImYourCFGNow:
             return normalized_guidance(cond, uncond, cond_scale, momentum_buffer, eta, norm_threshold)
 
         m = model.clone()
-        m.set_model_sampler_cfg_function(apg_function, extras==extras)
+        m.set_model_sampler_cfg_function(apg_function, extras=extras)
         m.model_options["disable_cfg1_optimization"] = False
 
         return (m,)
